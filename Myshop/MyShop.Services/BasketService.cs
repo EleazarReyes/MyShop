@@ -68,7 +68,7 @@ namespace MyShop.Services
             return basket;
 
         }
-        public void AddToBasket(HttpContextBase httpContext, string productId)
+        public void AddToBasket(HttpContextBase httpContext, string productId, int qty)
         {
             Basket basket = GetBasket(httpContext, true);
             BasketItem item = basket.BasketItems.FirstOrDefault(i => i.ProductId == productId);
@@ -79,7 +79,7 @@ namespace MyShop.Services
                 {
                     BasketId = basket.Id,
                     ProductId = productId,
-                    Quantity = 1
+                    Quantity = qty
                 };
                 basket.BasketItems.Add(item);
             }
@@ -148,7 +148,14 @@ namespace MyShop.Services
             {
                 return model;
             }
-        }         
+        }  
+        
+        public void ClearBasket(HttpContextBase httpContext)
+        {
+            Basket basket = GetBasket(httpContext, false);
+            basket.BasketItems.Clear();
+            basketContext.Commit();
+        }
 
 
     }

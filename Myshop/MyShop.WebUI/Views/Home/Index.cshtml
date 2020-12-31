@@ -2,7 +2,15 @@
 @{
     ViewBag.Title = "Home Page";
 }
+<style>
+</style>
 
+@if (TempData["message"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["message"]
+    </div>
+}
 <h1>Products</h1>
 
 <div class="col-md-2">
@@ -11,10 +19,10 @@
         @Html.ActionLink("All", "Index", null, new { @class = Request["Category"] == null ? "list-group-item active" : "list-group-item" })
         @foreach (var cat in Model.productCategories)
         {
-            @Html.ActionLink(cat.Category, "Index", new { Category = cat.Category }, new { @class = Request[ "Category" ] == cat.Category ? "list-group-item active" : "list-group-item"})
+            @Html.ActionLink(cat.Category, "Index", new { Category = cat.Category }, new { @class = Request["Category"] == cat.Category ? "list-group-item active" : "list-group-item" })
         }
     </div>
-    
+
 </div>
 <div class="col-md-10">
 
@@ -22,21 +30,96 @@
     {
         <div class="col-md-4" style="height:450px;padding:10px;margin:10px;border: solid thin whitesmoke">
             <div class="col-md-12">
-                <img class="img" style="height:250px" src="~/Content/ProductImages/@item.Image" />
+                <img class="img" style="height:250px; width:auto" src="~/Content/ProductImages/@item.Image" />
             </div>
             <div class="col-md-12">
                 <strong>@Html.ActionLink(item.Name, "Details", new { id = item.Id })</strong>
             </div>
+            @*<div class="col-md-12">
+                    <p>@item.Description</p>
+                </div>*@
             <div class="col-md-12">
-                <p>@item.Description</p>
+                <h4>$ @item.Price</h4>
             </div>
-            <div class="col-md-12">
-                <h4>@item.Price</h4>
+            <div class="col-xs-6">
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-left-minus btn btn-light btn-number" data-type="minus" onclick="LeftClickMinus('@item.Id')">
+                            <span class="glyphicon glyphicon-minus"></span>
+                        </button>
+                    </span>
+                    <input type="text" id="@("quantity"+item.Id)" name="quantity" class="form-control input-number" value="1" min="1" max="100">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-right-plus btn btn-light btn-number" data-type="plus" onclick="RightClickPlus('@item.Id')">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </span>
+                </div>
             </div>
-            <div class="col-md-12">
-                <a href="@Url.Action("AddToBasket", "Basket", new { Id = item.Id})" class="btn btn-default">Add to Basket</a>
+            <div class="col-md-12" style="margin-top:10px">
+                @*<a href="@Url.Action("AddToBasket", "Basket", new { Id = item.Id })" class="btn btn-default">Add to Basket</a>*@
+                @*<button class="btn btn-default" id="AddtoBasketBtn" type="button" onclick="AddToBasket('@item.Id')">Add to Basket</button>*@
+                <a href="@Url.Action("AddToBasket", "Basket")" data-value1=@item.Id class="btn btn-default myBasket">Add to Basket</a>
             </div>
         </div>
     }
 </div>
-<div class="col-md-12 clearfix"/>
+<div class="col-md-12 clearfix" />
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+        });
+         $(function () {
+
+            $("a.myBasket").click(function (e) {
+
+                e.preventDefault();
+                _this = $(this);
+           
+                var idVal = $(this).data("value1");
+                var qtyVal = $('#quantity' + idVal).val();
+                //console.log(typeof qtyVal)
+                var url = _this.attr("href");
+                url = url + "?id=" + idVal + "&qtyVal=" + qtyVal;
+                 //alert(url);
+
+                //You can do any other thing here.
+
+                 //If you want to update the field with  myContactVal class in prev td
+                 //_this.closest("tr").find(".myContactVal").val(contactVal);
+
+
+                // finally do the redirect
+                window.location.href=url;
+
+    })
+
+})
+
+        function LeftClickMinus(id) {
+            var quantity = parseInt($('#quantity' + id).val());
+
+            // Decrement
+            if (quantity > 0) {
+                $('#quantity' + id).val(quantity - 1);
+            }
+        }
+        function RightClickPlus(id) {
+            // Get the field name
+            var quantity = parseInt($('#quantity'+id).val());
+            // Increment
+            $('#quantity' + id).val(quantity + 1);
+
+        }
+        @*function AddToBasket(id) {
+            var qtyVal = $('#quantity').val();
+            $.ajax({
+                url: '@Url.Action("AddToBasket", "Basket")',
+                data: { id: id, qty: qtyVal }
+            });
+        }*@
+
+    </script>
+
+}
